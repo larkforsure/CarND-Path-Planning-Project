@@ -2,6 +2,9 @@
 
 ![screenshot](screenshot.jpg)
 
+video 
+<https://www.youtube.com/watch?v=cl5h3t4EavA>
+
 ## Waypoints generation
 With map waypoints receiving from the CSV, transform points in Frenet coordinate along the road ( in general ) with the function getXY() to world space coordinate
 
