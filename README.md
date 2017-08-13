@@ -1,3 +1,49 @@
+# Reflections
+
+![screenshot](screenshot.jpg)
+
+## Waypoints generation
+With map waypoints receiving from the CSV, transform points in Frenet coordinate along the road ( in general ) with the function getXY() to world space coordinate
+
+### All about avoiding jerk
+Inherit points not eated up in the previous cycle to smooth the state from cycle to cycle. Use the last two of them and three evenly 30m spaced points in Frenet coordinate points to lay out the trajectory. Then send the trajectory to Spline to fit in a smooth line/function. Caculate the final waypoints with the expected velocity, serving for avoiding jerk and following the traffic rule.
+
+## Planner
+With a simple state machine, avoid the collision and overtake, by changing the lane, if possible.
+
+PS. I award the expected velocity when decide to change the lane, otherwise the d-axis velocity will actually punish s-axis velocity. Also we don't want to stall on lane boundary for too long
+
+    enum { KEEP_GOING, SLOW_DOWN, CHANGE_LANE } car_state;
+
+    car_state = KEEP_GOING;
+    if (too_close == true) {
+        car_state = CHANGE_LANE;
+    
+        if (good_lanes[0] == true && abs(lane - 0) == 1) {  
+            lane = 0;
+        } else if (good_lanes[1] == true && abs(lane - 1) == 1) {
+            lane = 1;
+        } else if (good_lanes[2] == true && abs(lane - 2) == 1) {
+            lane = 2;
+        } else {  // no choice, slow down
+            car_state = SLOW_DOWN;
+        }
+    }
+    if (car_state == CHANGE_LANE && (ref_vel < 49)) {
+        // award velocity when changing lane 
+        ref_vel += 0.4;              
+    } else if (car_state == SLOW_DOWN) {
+        ref_vel -= .224; 
+    } else if (ref_vel < 49.5) { // no dangerous, smoonthly accelate
+        ref_vel += .224; // 5m/s per acceleration change
+    }
+
+
+
+
+
+
+
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
    
